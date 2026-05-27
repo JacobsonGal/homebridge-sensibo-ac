@@ -317,6 +317,22 @@ export default (device, platform) => {
 				callback(null, fanSpeed)
 			},
 
+			FanSpeedActive: callback => {
+				const active = device.state.active
+
+				log.easyDebug(device.name, '(GET) - Fan Speed Active State:', active)
+
+				callback(null, active ? 1 : 0)
+			},
+
+			FanSpeedRotationSpeed: callback => {
+				const fanSpeed = device.state.fanSpeed ?? 0
+
+				log.easyDebug(device.name, '(GET) - Fan Speed Rotation Speed:', fanSpeed + '%')
+
+				callback(null, fanSpeed)
+			},
+
 			// DEHUMIDIFIER
 			DryActive: callback => {
 				const active = device.state.active
@@ -383,6 +399,14 @@ export default (device, platform) => {
 				log.easyDebug(device.name, '(GET) - Horizontal Swing:', horizontalSwing)
 
 				callback(null, horizontalSwing === 'SWING_ENABLED')
+			},
+
+			VerticalSwing: callback => {
+				const verticalSwing = device.state.verticalSwing
+
+				log.easyDebug(device.name, '(GET) - Vertical Swing:', verticalSwing)
+
+				callback(null, verticalSwing === 'SWING_ENABLED')
 			},
 
 			// AIR CONDITIONER/PURIFIER LIGHT
@@ -674,6 +698,36 @@ export default (device, platform) => {
 				callback()
 			},
 
+			FanSpeedActive: (state, callback) => {
+				state = !!state
+				log.easyDebug(device.name, '(SET) - Fan Speed Active State:', state)
+
+				if (state) {
+					device.state.active = true
+				} else {
+					device.state.active = false
+				}
+
+				updateClimateReact(device, enableClimateReactAutoSetup)
+
+				callback()
+			},
+
+			FanSpeedRotationSpeed: (speed, callback) => {
+				log.easyDebug(device.name, '(SET) - Fan Speed Rotation Speed:', speed + '%')
+				device.state.fanSpeed = speed
+
+				if (device.FanSpeedControlService) {
+					device.FanSpeedControlService.getCharacteristic(Characteristic.RotationSpeed).updateValue(speed)
+				}
+
+				device.state.active = true
+
+				updateClimateReact(device, enableClimateReactAutoSetup)
+
+				callback()
+			},
+
 			// DEHUMIDIFIER
 			DryActive: (state, callback) => {
 				state = !!state
@@ -748,6 +802,18 @@ export default (device, platform) => {
 				log.easyDebug(device.name, '(SET) - HeaterCooler State (HorizontalSwing):', lastMode, '(' + lastModeValue + ')')
 				device.state.active = true
 				// device.state.mode = lastMode
+
+				updateClimateReact(device, enableClimateReactAutoSetup)
+
+				callback()
+			},
+
+			VerticalSwing: (state, callback) => {
+				const swingState = state ? 'SWING_ENABLED' : 'SWING_DISABLED'
+
+				log.easyDebug(device.name, '(SET) - Vertical Swing:', swingState)
+
+				device.state.verticalSwing = swingState
 
 				updateClimateReact(device, enableClimateReactAutoSetup)
 

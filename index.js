@@ -63,6 +63,7 @@ class SensiboACPlatform {
 		this.disableCarbonDioxide = config['disableCarbonDioxide'] || false
 		this.disableDry = config['disableDry'] || false
 		this.disableFan = config['disableFan'] || false
+		this.enableFanSpeedControl = config['enableFanSpeedControl'] || false
 		this.disableHorizontalSwing = config['disableHorizontalSwing'] || false
 		this.disableHumidity = config['disableHumidity'] || false
 		this.disableLightSwitch = config['disableLightSwitch'] || false
